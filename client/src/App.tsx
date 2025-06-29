@@ -12,6 +12,7 @@ import CreateProperty from './pages/CreateProperty';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EditProperty from './pages/EditProperty';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -23,9 +24,19 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/properties/:id" element={<PropertyDetail />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/create" element={<CreateProperty />} />
-        <Route path="/admin/edit/:id" element={<EditProperty />} />
+        {/* Admin-only routes */}
+        <Route
+          path="/admin"
+          element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />}
+        />
+        <Route
+          path="/admin/create"
+          element={<ProtectedRoute element={<CreateProperty />} requiredRole="admin" />}
+        />
+        <Route
+          path="/admin/edit/:id"
+          element={<ProtectedRoute element={<EditProperty />} requiredRole="admin" />}
+        />
       </Routes>
     </div>
     );  

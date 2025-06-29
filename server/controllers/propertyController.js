@@ -15,16 +15,30 @@ export const createProperty = async (req, res) => {
 
 export const getProperties = async (req, res) => {
   try {
-    const properties = await Property.find();
-    const user = await User.findById(req.user.id); // assuming req.user from auth middleware
-      res.json({
-        properties,
-        userBookmarks: user.bookmarks || [],
-      });
+    const properties = await Property.find().lean(); // lean for better performance
+
+    const user = await User.findById(req.user.id);
+
+    const enrichedProperties = properties.map((p) => {
+      return {
+        ...p,
+        ratings: p.ratings?.map((r) => ({
+          user: r.user?.toString?.(),  // Ensure it's a string
+          value: r.value,
+        })) || [],
+      };
+    });
+
+    res.json({
+      properties: enrichedProperties,
+      userBookmarks: user?.bookmarks || [],
+    });
   } catch (err) {
+    console.error('Error fetching properties:', err.message);
     res.status(500).json({ error: err.message });
   }
 };
+
 
 export const getPropertyById = async (req, res) => {
   try {
