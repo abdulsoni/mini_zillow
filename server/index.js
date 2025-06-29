@@ -11,7 +11,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI =  process.env.MONGODB_URI || 'mongodb://localhost:27017/rental-app';
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
 
 mongoose.connect(MONGO_URI)
