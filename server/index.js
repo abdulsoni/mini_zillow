@@ -19,6 +19,12 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
+
+app.options('*', cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
+
 app.use(express.json());
 
 mongoose.connect(MONGO_URI)
