@@ -6,7 +6,7 @@ A full-stack web application to browse, manage, and interact with property listi
 
 ## 🌐 Live Preview
 
-👉 [View App Live](https://your-deployment-url.vercel.app)
+👉 [View App Live](https://mini-zillow-usr9.vercel.app)
 
 ---
 
@@ -22,10 +22,26 @@ A full-stack web application to browse, manage, and interact with property listi
 
 ---
 
+## 🔑 Test Credentials
+
+### 👨‍💼 Admin
+
+- **Email**: admin@gmail.com  
+- **Password**: 123456
+
+### 🙋‍♂️ User
+
+- **Email**: user@gmail.com  
+- **Password**: 123456
+
+> 🔐 You can also register new accounts using the **Signup** page.
+
+---
+
 ## 🔧 Tech Stack
 
-- **Frontend**: React, TypeScript, React Router, Axios, React Toastify
-- **Backend**: Node.js, Express, MongoDB, Mongoose
+- **Frontend**: React, TypeScript, React Router, Axios, React Toastify  
+- **Backend**: Node.js, Express, MongoDB, Mongoose  
 - **Storage**: Cloudinary
 
 ---
