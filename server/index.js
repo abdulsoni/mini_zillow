@@ -15,6 +15,7 @@ const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/rental-a
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'http://localhost:3000', // for local dev
+  'https://mini-zillow-usr9.vercel.app'
 ];
 
 app.use(cors({
