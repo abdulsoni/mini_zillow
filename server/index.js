@@ -16,12 +16,12 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: allowedOrigins,
   credentials: true,
 }));
 
 app.options('*', cors({
-  origin: allowedOrigin,
+  origin: allowedOrigins,
   credentials: true,
 }));
 
