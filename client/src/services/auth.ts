@@ -1,5 +1,5 @@
 import { User } from '../types/User';
-import api from './api';
+import api from './api'; // ✅ Use the shared Axios instance
 
 interface LoginPayload {
   email: string;
@@ -10,6 +10,7 @@ interface LoginResponse {
   token: string;
   name: string;
   role: string;
+  userId:string;
 }
 
 interface SignupPayload {
@@ -22,7 +23,8 @@ export const loginUser = (data: LoginPayload) =>
   api.post<LoginResponse>('/auth/login', data);
 
 export const signupUser = async (data: SignupPayload) => {
-  return await axios.post('/api/auth/signup', data);
+  console.log('data', data);
+  return await api.post('/auth/signup', data); // ✅ uses api, not raw axios
 };
 
 export const checkUser = () => {

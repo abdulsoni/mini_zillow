@@ -15,7 +15,7 @@ export default function AdminDashboard() {
 
   const fetchData = () => {
     getAllProperties()
-      .then((res) => setProperties(res.data))
+      .then((res) => setProperties(res.data.properties))
       .catch((err) => console.error(err));
   };
 
@@ -68,12 +68,12 @@ export default function AdminDashboard() {
         <p className="text-gray-600">${p.price}</p>
       </div>
       <div className="flex items-center gap-4">
-        {/* <Link
+        <Link
           to={`/admin/edit/${p._id}`}
           className="text-blue-600 hover:underline text-sm"
         >
           Edit
-        </Link> */}
+        </Link>
         <button
           onClick={() => handleDelete(p._id)}
           className="text-red-600 hover:underline text-sm"

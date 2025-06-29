@@ -1,4 +1,5 @@
 import Property from '../models/Property.js';
+import User from '../models/User.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 export const createProperty = async (req, res) => {
@@ -15,7 +16,11 @@ export const createProperty = async (req, res) => {
 export const getProperties = async (req, res) => {
   try {
     const properties = await Property.find();
-    res.json(properties);
+    const user = await User.findById(req.user.id); // assuming req.user from auth middleware
+      res.json({
+        properties,
+        userBookmarks: user.bookmarks || [],
+      });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -51,3 +56,57 @@ export const deleteProperty = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const bookMarkProperty = async (req, res) => {
+ const user = await User.findById(req.user.id);
+  const propertyId = req.params.id;
+
+  const index = user.bookmarks.indexOf(propertyId);
+  if (index === -1) {
+    user.bookmarks.push(propertyId);
+  } else {
+    user.bookmarks.splice(index, 1);
+  }
+
+  await user.save();
+  res.json({ bookmarks: user.bookmarks });
+};
+
+export const giveRatingToProperty = async (req, res) => {
+  const { id } = req.params;
+  const { value } = req.body;
+  const userId = req.user._id?.toString(); // Ensure this is a string
+
+  const property = await Property.findById(id);
+  if (!property) {
+    return res.status(404).json({ message: 'Property not found' });
+  }
+
+  const existing = property.ratings.find(
+    (r) => r.user?.toString() === userId
+  );
+
+  if (existing) {
+    existing.value = value;
+  } else {
+    property.ratings.push({ user: req.user._id, value });
+  }
+
+  await property.save();
+
+  const totalRatings = property.ratings.length;
+  const averageRating =
+    property.ratings.reduce((sum, r) => sum + r.value, 0) / totalRatings;
+
+  res.json({
+    message: 'Rating submitted',
+    property: {
+      _id: property._id,
+      averageRating,
+      totalRatings,
+    },
+  });
+};
+
+
+

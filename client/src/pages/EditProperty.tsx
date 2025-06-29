@@ -1,22 +1,22 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
-import { createProperty } from '../services/property';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { getPropertyById, updateProperty } from '../services/property';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 type FormState = {
   title: string;
   location: string;
-  price: string;
+  price: number;
   description: string;
   image: File | null;
 };
 
-export default function CreateProperty() {
+export default function EditProperty() {
   const [form, setForm] = useState<FormState>({
     title: '',
     location: '',
-    price: '',
+    price: 0,
     description: '',
     image: null,
   });
@@ -24,6 +24,47 @@ export default function CreateProperty() {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+ const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+        console.log('id',id)
+      try {
+        // const data = await getPropertyById(id!);
+        // setForm({
+        //   title: data.title,
+        //   location: data.location,
+        //   price: data.price.toString(),
+        //   description: data.description,
+        //   image: null,
+        // });
+        // setPreview(data.image); // assuming this is the image URL
+      } catch (err: any) {
+        toast.error('Failed to load property details.');
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
+
+    useEffect(() => {
+    if (id) {
+      getPropertyById(id)
+        .then((res) => {
+        setForm({
+          title: res.data.title,
+          location: res.data.location,
+          price: res.data?.price || 0,
+          description: res.data.description,
+          image: null,
+        });
+         if (res.data.images?.length > 0) {
+            setPreview(res.data.images[0]);
+         }
+        })
+        .catch((err) => console.error('Failed to fetch property:', err));
+    }
+  }, [id]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
@@ -36,10 +77,10 @@ export default function CreateProperty() {
   };
 
   const validateForm = () => {
-    const { title, location, price, description, image } = form;
+    const { title, location, price, description } = form;
 
-    if (!title.trim() || !location.trim() || !price.trim() || !description.trim() || !image) {
-      toast.error('All fields are required.');
+    if (!title.trim() || !location.trim() || !price || !description.trim()) {
+      toast.error('All fields except image are required.');
       return false;
     }
 
@@ -58,19 +99,18 @@ export default function CreateProperty() {
 
     setLoading(true);
     const formData = new FormData();
-
-    Object.entries(form).forEach(([key, value]) => {
-      if (value !== null) {
-        formData.append(key, value);
-      }
-    });
+    formData.append('title', form.title);
+    formData.append('location', form.location);
+    formData.append('price', form.price.toString());
+    formData.append('description', form.description);
+    if (form.image) formData.append('image', form.image);
 
     try {
-      await createProperty(formData);
-      toast.success('Property created successfully!');
-      setTimeout(() => navigate('/admin'), 1500); // Delay navigation for toast
+      await updateProperty(id!, formData);
+      toast.success('Property updated successfully!');
+      setTimeout(() => navigate('/admin'), 1500);
     } catch (err: any) {
-      const message = err?.response?.data?.error || 'Something went wrong';
+      const message = err?.response?.data?.error || 'Failed to update property';
       toast.error(message);
     } finally {
       setLoading(false);
@@ -81,7 +121,7 @@ export default function CreateProperty() {
     <div className="max-w-xl mx-auto mt-10 bg-white rounded-xl shadow-lg p-6">
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold text-gray-800">Create Property</h2>
+        <h2 className="text-3xl font-semibold text-gray-800">Edit Property</h2>
         <Link
           to="/admin"
           className="text-sm text-blue-600 hover:underline border border-blue-500 px-3 py-1 rounded-md"
@@ -97,7 +137,6 @@ export default function CreateProperty() {
           value={form.title}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
         />
         <input
           name="location"
@@ -105,7 +144,6 @@ export default function CreateProperty() {
           value={form.location}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
         />
         <input
           name="price"
@@ -114,7 +152,6 @@ export default function CreateProperty() {
           value={form.price}
           onChange={handleChange}
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
         />
         <textarea
           name="description"
@@ -123,7 +160,6 @@ export default function CreateProperty() {
           onChange={handleChange}
           rows={4}
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
         />
         <input
           type="file"
@@ -131,7 +167,6 @@ export default function CreateProperty() {
           accept="image/*"
           onChange={handleChange}
           className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          required
         />
         {preview && (
           <img
@@ -142,7 +177,7 @@ export default function CreateProperty() {
         )}
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-medium transition duration-200 flex items-center justify-center"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition duration-200 flex items-center justify-center"
           disabled={loading}
         >
           {loading ? (
@@ -167,10 +202,10 @@ export default function CreateProperty() {
                   d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 00-8 8z"
                 ></path>
               </svg>
-              Submitting...
+              Updating...
             </span>
           ) : (
-            'Submit Property'
+            'Update Property'
           )}
         </button>
       </form>

@@ -9,10 +9,14 @@ import Signup from './pages/Signup';
 import PropertyDetail from './pages/PropertyDetail';
 import AdminDashboard from './pages/AdminDashboard';
 import CreateProperty from './pages/CreateProperty';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import EditProperty from './pages/EditProperty';
 
 function App() {
   return (
      <div className="font-sans">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Navbar />
       <Routes>
         <Route path="/" element={<PropertyList />} />
@@ -21,6 +25,7 @@ function App() {
         <Route path="/properties/:id" element={<PropertyDetail />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/create" element={<CreateProperty />} />
+        <Route path="/admin/edit/:id" element={<EditProperty />} />
       </Routes>
     </div>
     );  
